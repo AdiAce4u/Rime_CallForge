@@ -50,7 +50,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 STATIC_DIR = Path(__file__).parent / "static"
-STATIC_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    STATIC_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
 
 # -----------------------------------------------------------------------------
 # Configuration & Credentials

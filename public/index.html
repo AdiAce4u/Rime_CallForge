@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saarthi - Service Concierge Desk</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <div id="app-container" class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1 class="app-logo">Saarthi</h1>
+      </div>
+
+      <nav class="sidebar-nav">
+        <!-- Tab 1: Live Concierge -->
+        <button class="nav-item active" data-tab="live-concierge" onclick="switchTab('live-concierge')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>Live Concierge</span>
+        </button>
+
+        <!-- Tab 2: Voice Announcement TTS -->
+        <button class="nav-item multiline-item" data-tab="voice-announcement" onclick="switchTab('voice-announcement')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+          <span class="nav-text-multiline">Voice Announcement<br>TTS</span>
+        </button>
+
+        <!-- Tab 3: Live Audio Transcriber -->
+        <button class="nav-item" data-tab="live-transcriber" onclick="switchTab('live-transcriber')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
+          <span>Live Audio Transcriber</span>
+        </button>
+
+        <!-- Tab 4: Service Logs & History -->
+        <button class="nav-item" data-tab="service-logs" onclick="switchTab('service-logs')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span>Service Logs & History</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Navigation Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <h2 class="page-title">Service Concierge Desk</h2>
+        </div>
+
+        <div class="header-right-actions">
+          <!-- Language badge -->
+          <div class="language-pill" id="current-language-pill">
+            <span class="status-dot green"></span>
+            <span id="active-language-label">English (astra)</span>
+          </div>
+
+          <!-- Clear Chat -->
+          <button class="btn-subtle" onclick="clearConciergeChat()">Clear Chat</button>
+
+          <!-- Dark/Light Theme Toggle -->
+          <button class="btn-icon" id="theme-toggle-btn" title="Toggle Theme" onclick="toggleTheme()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- ================= TAB 1: LIVE CONCIERGE ================= -->
+      <section id="tab-live-concierge" class="tab-pane active">
+        <!-- Sub-header Status Row (Positioned nicely below header, above card) -->
+        <div class="service-status-bar">
+          <!-- STT Status -->
+          <div class="status-pill">
+            <span class="status-dot green"></span>
+            <span id="stt-status-label">STT: Deepgram Nova-3 (Connected)</span>
+          </div>
+
+          <!-- LLM Status -->
+          <div class="status-pill">
+            <span class="status-dot green"></span>
+            <span id="llm-status-label">LLM: Groq (qwen/qwen3.8-27b) (Connected)</span>
+          </div>
+
+          <!-- TTS Status with Voice Selector Dropdown -->
+          <div class="status-pill dropdown-container">
+            <span class="status-dot green"></span>
+            <span id="tts-status-label">TTS: Rime Coda (Sub-Clause)</span>
+            <select id="header-voice-select" class="header-inline-select" onchange="onVoiceSelectionChanged(this.value)">
+              <option value="astra">astra (English)</option>
+              <option value="nadi">nadi (Hindi)</option>
+              <option value="luz">luz (Spanish)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Single Unified Center Card (Exact 100% Replica of media_1789001958794.jpg) -->
+        <div class="concierge-card">
+          <!-- Ready Badge -->
+          <div class="service-ready-badge">
+            <span class="status-dot green"></span>
+            <span>Service Intelligence Ready</span>
+          </div>
+
+          <!-- Heading -->
+          <h1 class="hero-title">Welcome to Saarthi</h1>
+          <p class="hero-subtitle">
+            Tap the microphone below to start hands-free service booking. Full-duplex allows you to interrupt at any moment.
+          </p>
+
+          <!-- The Big Circle Microphone Button -->
+          <div class="big-mic-wrapper">
+            <div class="visualizer-ring" id="visualizer-ring"></div>
+            <button class="big-mic-circle" id="big-mic-btn" onclick="toggleContinuousMic()">
+              <svg id="big-mic-icon" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" x2="12" y1="19" y2="22"/>
+              </svg>
+            </button>
+          </div>
+          <p class="mic-status-text" id="mic-status-text">Tap to start speaking</p>
+
+          <!-- Real-time speech level indicator -->
+          <div class="speech-level-container" id="speech-level-container">
+            <div class="speech-level-bar" id="speech-level-bar"></div>
+          </div>
+
+          <!-- Inner Dialogue Transcript Container -->
+          <div class="inner-transcript-area">
+            <div class="transcript-header">
+              <span class="transcript-label">CONCIERGE DIALOGUE TRANSCRIPT</span>
+              <span id="turn-counter" class="turn-counter">0 turns</span>
+            </div>
+
+            <!-- Initial Prompt Banner -->
+            <div class="active-concierge-banner">
+              <p>Apex Concierge active. Ask in English, Hindi, or Spanish to book flights, trains, hotels, or cabs.</p>
+            </div>
+
+            <!-- Chat Message Feed -->
+            <div class="chat-stream" id="chat-stream">
+              <!-- Turns will be populated dynamically -->
+            </div>
+
+            <!-- Chat Text Input Bar -->
+            <form class="chat-input-bar" onsubmit="return handleTextSubmit(event)">
+              <input 
+                type="text" 
+                id="chat-text-input" 
+                class="chat-text-field" 
+                placeholder="Type your service request here (e.g. 'Book a cab to Airport')..."
+                autocomplete="off"
+              >
+              <button type="submit" class="btn-send" id="btn-send" title="Send Request">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"/>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: VOICE ANNOUNCEMENT TTS ================= -->
+      <section id="tab-voice-announcement" class="tab-pane">
+        <div class="studio-card">
+          <div class="studio-header">
+            <div>
+              <h3 class="studio-title">Voice Announcement TTS Studio</h3>
+              <p class="studio-subtitle">Synthesize public address announcements and alerts powered by Rime Coda.</p>
+            </div>
+            <div class="status-pill">
+              <span class="status-dot green"></span>
+              <span>Rime Coda Engine</span>
+            </div>
+          </div>
+
+          <!-- Presets -->
+          <div class="presets-row">
+            <span class="presets-label">Presets:</span>
+            <button class="btn-preset" onclick="loadAnnouncementPreset('flight')">Flight Boarding</button>
+            <button class="btn-preset" onclick="loadAnnouncementPreset('taxi')">Cab Arrival</button>
+            <button class="btn-preset" onclick="loadAnnouncementPreset('hotel')">Hotel Welcome</button>
+            <button class="btn-preset" onclick="loadAnnouncementPreset('hindi')">Railway Announcement (Hindi)</button>
+          </div>
+
+          <!-- Input Area -->
+          <div class="form-group mt-3">
+            <label for="announcement-text">Announcement Script</label>
+            <textarea id="announcement-text" class="studio-textarea" rows="4" placeholder="Enter text to synthesize..."></textarea>
+          </div>
+
+          <!-- Controls Grid -->
+          <div class="studio-controls-grid">
+            <div class="control-box">
+              <label for="announcement-voice">Speaker Voice</label>
+              <select id="announcement-voice" class="studio-select">
+                <option value="astra">astra (English - Conversational)</option>
+                <option value="marsh">marsh (English - Crisp)</option>
+                <option value="nadi">nadi (Hindi - Authentic Devanagari)</option>
+                <option value="luz">luz (Spanish - Castilian/Latin)</option>
+                <option value="aurelie">aurelie (French)</option>
+                <option value="greta">greta (German)</option>
+              </select>
+            </div>
+
+            <div class="control-box">
+              <label for="announcement-model">TTS Model</label>
+              <select id="announcement-model" class="studio-select">
+                <option value="coda">Coda (Sub-Clause Flagship)</option>
+                <option value="mistv2">Mist V2</option>
+              </select>
+            </div>
+
+            <div class="control-box">
+              <label for="announcement-speed">Pace / Speed: <span id="speed-val">1.0x</span></label>
+              <input type="range" id="announcement-speed" min="0.75" max="1.3" step="0.05" value="1.0" oninput="document.getElementById('speed-val').innerText = this.value + 'x'">
+            </div>
+          </div>
+
+          <div class="studio-action-row">
+            <button class="btn-primary" id="btn-synthesize-tts" onclick="synthesizeAnnouncement()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              <span>Synthesize Spoken Output</span>
+            </button>
+          </div>
+
+          <!-- Output Player & Latency -->
+          <div id="announcement-result-card" class="result-card hidden">
+            <div class="result-header">
+              <span class="result-title">Generated Audio Output</span>
+              <span id="announcement-latency-badge" class="latency-pill">Latency: -- ms</span>
+            </div>
+            <audio id="announcement-audio-player" controls class="full-audio-player"></audio>
+            <div class="download-row">
+              <a id="download-announcement-link" class="btn-subtle" download="saarthi_announcement.wav">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Download WAV</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: LIVE AUDIO TRANSCRIBER ================= -->
+      <section id="tab-live-transcriber" class="tab-pane">
+        <div class="studio-card">
+          <div class="studio-header">
+            <div>
+              <h3 class="studio-title">Live Audio Transcriber</h3>
+              <p class="studio-subtitle">Continuous multi-lingual audio transcription powered by Deepgram Nova-3.</p>
+            </div>
+            <div class="status-pill">
+              <span class="status-dot green"></span>
+              <span>Deepgram Nova-3 Multi</span>
+            </div>
+          </div>
+
+          <!-- Transcriber Metrics -->
+          <div class="transcriber-metrics">
+            <div class="metric-card">
+              <span class="metric-label">Detected Language</span>
+              <span class="metric-value" id="stt-detected-lang">English (en)</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">STT Latency</span>
+              <span class="metric-value" id="stt-last-latency">-- ms</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Confidence</span>
+              <span class="metric-value" id="stt-confidence">-- %</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Transcribed Words</span>
+              <span class="metric-value" id="stt-word-count">0 words</span>
+            </div>
+          </div>
+
+          <!-- Transcriber Stream Box -->
+          <div class="transcription-stream-box" id="transcription-stream-box">
+            <p class="empty-hint" id="transcriber-empty-hint">Start speaking with the microphone or click below to start a dedicated transcription capture session.</p>
+            <div id="transcription-text-content" class="transcription-text-content"></div>
+          </div>
+
+          <div class="studio-action-row space-between">
+            <div class="buttons-left">
+              <button class="btn-primary" id="btn-toggle-transcriber" onclick="toggleDedicatedTranscriber()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" x2="12" y1="19" y2="22"/>
+                </svg>
+                <span id="transcriber-btn-label">Start Live Recording</span>
+              </button>
+            </div>
+            <div class="buttons-right">
+              <button class="btn-subtle" onclick="copyTranscriptionText()">Copy Text</button>
+              <button class="btn-subtle" onclick="clearTranscriptionText()">Clear</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: SERVICE LOGS & HISTORY ================= -->
+      <section id="tab-service-logs" class="tab-pane">
+        <div class="logs-container">
+          <!-- Statistics Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-title">Total Requests</span>
+              <span class="stat-value" id="stat-total-requests">0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-title">Average Latency</span>
+              <span class="stat-value highlight" id="stat-avg-latency">-- ms</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-title">STT Latency Avg</span>
+              <span class="stat-value" id="stat-avg-stt">-- ms</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-title">LLM TTFT Avg</span>
+              <span class="stat-value" id="stat-avg-llm">-- ms</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-title">TTS Latency Avg</span>
+              <span class="stat-value" id="stat-avg-tts">-- ms</span>
+            </div>
+          </div>
+
+          <!-- Filter & Control Bar -->
+          <div class="logs-filter-bar">
+            <div class="filter-group">
+              <button class="btn-filter active" data-filter="all" onclick="filterLogs('all')">All Events</button>
+              <button class="btn-filter" data-filter="Voice Concierge" onclick="filterLogs('Voice Concierge')">Concierge</button>
+              <button class="btn-filter" data-filter="Voice Announcement TTS" onclick="filterLogs('Voice Announcement TTS')">Announcements</button>
+              <button class="btn-filter" data-filter="Live Audio Transcriber" onclick="filterLogs('Live Audio Transcriber')">Transcriptions</button>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-subtle" onclick="fetchServiceLogs()">Refresh</button>
+              <button class="btn-subtle danger" onclick="clearAllLogs()">Clear Logs</button>
+            </div>
+          </div>
+
+          <!-- Logs Table -->
+          <div class="logs-table-wrapper">
+            <table class="logs-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Service Type</th>
+                  <th>User Input / Trigger</th>
+                  <th>Agent Output / Synthesized Text</th>
+                  <th>Roundtrip Latency</th>
+                  <th>Breakdown (STT / LLM / TTS)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="logs-table-body">
+                <tr>
+                  <td colspan="7" class="empty-table-msg">No service interactions logged yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
