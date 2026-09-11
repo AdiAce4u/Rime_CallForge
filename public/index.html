@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Saarthi - Service Concierge Desk</title>
-  <link rel="stylesheet" href="/static/app.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/app.css?v=2.8.0">
 </head>
+
 <body>
   <div id="app-container" class="app-layout">
     <!-- Sidebar Navigation -->
@@ -17,36 +22,40 @@
       <nav class="sidebar-nav">
         <!-- Tab 1: Live Concierge -->
         <button class="nav-item active" data-tab="live-concierge" onclick="switchTab('live-concierge')">
-          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
           <span>Live Concierge</span>
         </button>
 
         <!-- Tab 2: Voice Announcement TTS -->
         <button class="nav-item multiline-item" data-tab="voice-announcement" onclick="switchTab('voice-announcement')">
-          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
           </svg>
           <span class="nav-text-multiline">Voice Announcement<br>TTS</span>
         </button>
 
         <!-- Tab 3: Live Audio Transcriber -->
         <button class="nav-item" data-tab="live-transcriber" onclick="switchTab('live-transcriber')">
-          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-            <line x1="12" x2="12" y1="19" y2="22"/>
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" x2="12" y1="19" y2="22" />
           </svg>
           <span>Live Audio Transcriber</span>
         </button>
 
         <!-- Tab 4: Service Logs & History -->
         <button class="nav-item" data-tab="service-logs" onclick="switchTab('service-logs')">
-          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
           </svg>
           <span>Service Logs & History</span>
         </button>
@@ -73,8 +82,9 @@
 
           <!-- Dark/Light Theme Toggle -->
           <button class="btn-icon" id="theme-toggle-btn" title="Toggle Theme" onclick="toggleTheme()">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
             </svg>
           </button>
         </div>
@@ -100,7 +110,8 @@
           <div class="status-pill dropdown-container">
             <span class="status-dot green"></span>
             <span id="tts-status-label">TTS: Rime Coda (Sub-Clause)</span>
-            <select id="header-voice-select" class="header-inline-select" onchange="onVoiceSelectionChanged(this.value)">
+            <select id="header-voice-select" class="header-inline-select"
+              onchange="onVoiceSelectionChanged(this.value)">
               <option value="astra">astra (English)</option>
               <option value="nadi">nadi (Hindi)</option>
               <option value="luz">luz (Spanish)</option>
@@ -119,24 +130,51 @@
           <!-- Heading -->
           <h1 class="hero-title">Welcome to Saarthi</h1>
           <p class="hero-subtitle">
-            Tap the microphone below to start hands-free service booking. Full-duplex allows you to interrupt at any moment.
+            Tap the microphone below to start hands-free service booking. Full-duplex allows you to interrupt at any
+            moment.
           </p>
 
-          <!-- The Big Circle Microphone Button -->
+          <!-- Quick Service Hints -->
+          <div class="quick-hints-bar">
+            <button type="button" class="hint-chip" onclick="executeQuickHint('Book a cab to Delhi Airport Terminal 3')">🚕 Book a Cab</button>
+            <button type="button" class="hint-chip" onclick="executeQuickHint('Find flights from Delhi to Mumbai tomorrow')">✈️ Flight to Mumbai</button>
+            <button type="button" class="hint-chip" onclick="executeQuickHint('मुझे दिल्ली के लिए तुरंत कैब चाहिए')">🚕 दिल्ली कैब (हिंदी)</button>
+            <button type="button" class="hint-chip" onclick="executeQuickHint('Reserve a hotel in Bangalore for two nights')">🏨 Hotel Booking</button>
+          </div>
+
+          <!-- The Big Circle Microphone Button (Aarvi-style Orb with Integrated Waveform) -->
           <div class="big-mic-wrapper">
             <div class="visualizer-ring" id="visualizer-ring"></div>
-            <button class="big-mic-circle" id="big-mic-btn" onclick="toggleContinuousMic()">
-              <svg id="big-mic-icon" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                <line x1="12" x2="12" y1="19" y2="22"/>
-              </svg>
+            <button class="big-mic-circle" id="big-mic-btn" onclick="toggleContinuousMic()" aria-label="Microphone">
+              <div class="orb-waveform" id="orb-waveform">
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+              </div>
+              <div class="orb-mic-badge">
+                <svg id="big-mic-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" x2="12" y1="19" y2="22" />
+                </svg>
+              </div>
             </button>
           </div>
-          <p class="mic-status-text" id="mic-status-text">Tap to start speaking</p>
+          <p class="mic-status-text" id="mic-status-text">How can I help you today?</p>
 
-          <!-- Real-time speech level indicator -->
-          <div class="speech-level-container" id="speech-level-container">
+          <!-- Real-time speech level indicator (kept for telemetry compatibility) -->
+          <div class="speech-level-container" id="speech-level-container" style="display: none;">
             <div class="speech-level-bar" id="speech-level-bar"></div>
           </div>
 
@@ -159,17 +197,13 @@
 
             <!-- Chat Text Input Bar -->
             <form class="chat-input-bar" onsubmit="return handleTextSubmit(event)">
-              <input 
-                type="text" 
-                id="chat-text-input" 
-                class="chat-text-field" 
-                placeholder="Type your service request here (e.g. 'Book a cab to Airport')..."
-                autocomplete="off"
-              >
+              <input type="text" id="chat-text-input" class="chat-text-field"
+                placeholder="Type your service request here (e.g. 'Book a cab to Airport')..." autocomplete="off">
               <button type="submit" class="btn-send" id="btn-send" title="Send Request">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="22" y1="2" x2="11" y2="13"/>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
                 </svg>
               </button>
             </form>
@@ -203,7 +237,8 @@
           <!-- Input Area -->
           <div class="form-group mt-3">
             <label for="announcement-text">Announcement Script</label>
-            <textarea id="announcement-text" class="studio-textarea" rows="4" placeholder="Enter text to synthesize..."></textarea>
+            <textarea id="announcement-text" class="studio-textarea" rows="4"
+              placeholder="Enter text to synthesize..."></textarea>
           </div>
 
           <!-- Controls Grid -->
@@ -230,14 +265,15 @@
 
             <div class="control-box">
               <label for="announcement-speed">Pace / Speed: <span id="speed-val">1.0x</span></label>
-              <input type="range" id="announcement-speed" min="0.75" max="1.3" step="0.05" value="1.0" oninput="document.getElementById('speed-val').innerText = this.value + 'x'">
+              <input type="range" id="announcement-speed" min="0.75" max="1.3" step="0.05" value="1.0"
+                oninput="document.getElementById('speed-val').innerText = this.value + 'x'">
             </div>
           </div>
 
           <div class="studio-action-row">
             <button class="btn-primary" id="btn-synthesize-tts" onclick="synthesizeAnnouncement()">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="5 3 19 12 5 21 5 3"/>
+                <polygon points="5 3 19 12 5 21 5 3" />
               </svg>
               <span>Synthesize Spoken Output</span>
             </button>
@@ -253,9 +289,9 @@
             <div class="download-row">
               <a id="download-announcement-link" class="btn-subtle" download="saarthi_announcement.wav">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
                 <span>Download WAV</span>
               </a>
@@ -300,7 +336,8 @@
 
           <!-- Transcriber Stream Box -->
           <div class="transcription-stream-box" id="transcription-stream-box">
-            <p class="empty-hint" id="transcriber-empty-hint">Start speaking with the microphone or click below to start a dedicated transcription capture session.</p>
+            <p class="empty-hint" id="transcriber-empty-hint">Start speaking with the microphone or click below to start
+              a dedicated transcription capture session.</p>
             <div id="transcription-text-content" class="transcription-text-content"></div>
           </div>
 
@@ -308,9 +345,9 @@
             <div class="buttons-left">
               <button class="btn-primary" id="btn-toggle-transcriber" onclick="toggleDedicatedTranscriber()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                  <line x1="12" x2="12" y1="19" y2="22"/>
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" x2="12" y1="19" y2="22" />
                 </svg>
                 <span id="transcriber-btn-label">Start Live Recording</span>
               </button>
@@ -354,9 +391,12 @@
           <div class="logs-filter-bar">
             <div class="filter-group">
               <button class="btn-filter active" data-filter="all" onclick="filterLogs('all')">All Events</button>
-              <button class="btn-filter" data-filter="Voice Concierge" onclick="filterLogs('Voice Concierge')">Concierge</button>
-              <button class="btn-filter" data-filter="Voice Announcement TTS" onclick="filterLogs('Voice Announcement TTS')">Announcements</button>
-              <button class="btn-filter" data-filter="Live Audio Transcriber" onclick="filterLogs('Live Audio Transcriber')">Transcriptions</button>
+              <button class="btn-filter" data-filter="Voice Concierge"
+                onclick="filterLogs('Voice Concierge')">Concierge</button>
+              <button class="btn-filter" data-filter="Voice Announcement TTS"
+                onclick="filterLogs('Voice Announcement TTS')">Announcements</button>
+              <button class="btn-filter" data-filter="Live Audio Transcriber"
+                onclick="filterLogs('Live Audio Transcriber')">Transcriptions</button>
             </div>
             <div class="filter-actions">
               <button class="btn-subtle" onclick="fetchServiceLogs()">Refresh</button>
@@ -390,6 +430,7 @@
     </main>
   </div>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=2.8.0"></script>
 </body>
+
 </html>
