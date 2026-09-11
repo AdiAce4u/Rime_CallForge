@@ -6,7 +6,7 @@
 
 ## Submission Summary & Demo
 
-- **Recorded Video Demo Link**: `[INSERT YOUR DEMO VIDEO URL HERE - e.g., YouTube / Google Drive / Loom]`
+- **Recorded Video Demo Link**: 
 - **Video Walkthrough Breakdown (4-5 Minutes)**:
   1. **Target User & Problem**: Hands-busy travelers and desk agents needing rapid, natural booking assistance (flights, cabs, trains, hotels) across English and Hindi without touching the keyboard.
   2. **Normal End-to-End Flow**: Instant speech-to-text transcription as words are spoken, sub-1.5s turnaround speech synthesis, and real-time audio playback with on-screen latency breakdown.
