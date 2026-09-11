@@ -24,33 +24,33 @@
 ```mermaid
 flowchart TD
     subgraph Client ["Client Browser - Full-Duplex Web Engine"]
-        A[Continuous Microphone Stream] --> B{60 FPS Frequency Energy VAD}
-        B -->|Audio Energy > 12%| C[Instant Typing into Textbox]
-        B -->|Silence >= 240ms| D[4.5s Deduplication Guard & Commit]
-        D -->|HTTP POST JSON| E[/api/concierge/chat]
+        A["Continuous Microphone Stream"] --> B{"60 FPS Frequency Energy VAD"}
+        B -->|"Audio Energy > 12%"| C["Instant Typing into Textbox"]
+        B -->|"Silence >= 240ms"| D["4.5s Deduplication Guard & Commit"]
+        D -->|"HTTP POST JSON"| E["/api/concierge/chat"]
         
-        K[Base64 Audio Player] --> L[Immediate Audio Playback]
-        A -.->|User Speaks Mid-Playback| M[Barge-In Interrupt: Stop Audio in < 15ms]
-        L -.->|Audio Ended| N[450ms Acoustic Echo Cooldown]
+        K["Base64 Audio Player"] --> L["Immediate Audio Playback"]
+        A -.->|"User Speaks Mid-Playback"| M["Barge-In Interrupt: Stop Audio in under 15ms"]
+        L -.->|"Audio Ended"| N["450ms Acoustic Echo Cooldown"]
     end
 
     subgraph Backend ["FastAPI Standalone Service - final.py"]
-        E --> F[Linguistic Language Detector]
-        F -->|Devanagari / Hinglish| G1[Hindi Directive + Voice: nadi]
-        F -->|English Query| G2[English Directive + Voice: astra]
-        F -->|Spanish Query| G3[Spanish Directive + Voice: luz]
+        E --> F["Linguistic Language Detector"]
+        F -->|"Devanagari / Hinglish"| G1["Hindi Directive + Voice: nadi"]
+        F -->|"English Query"| G2["English Directive + Voice: astra"]
+        F -->|"Spanish Query"| G3["Spanish Directive + Voice: luz"]
         
-        G1 & G2 & G3 --> H[Prewarmed Groq LPU Session]
-        H -->|Streaming TTFT ~160ms| I[Concise Single Sentence Generator < 15 Words]
-        I --> J[Prewarmed Rime Coda Session]
-        J -->|WAV Audio Bytes ~680ms| O[Telemetry Assembly & Audit Logging]
-        O -->|JSON Payload + Base64 Audio| K
+        G1 --> H["Prewarmed Groq LPU Session"]
+        G2 --> H
+        G3 --> H
+        H -->|"Streaming TTFT ~160ms"| I["Concise Single Sentence Generator (under 15 Words)"]
+        I --> J["Prewarmed Rime Coda Session"]
+        J -->|"WAV Audio Bytes ~680ms"| O["Telemetry Assembly & Audit Logging"]
+        O -->|"JSON Payload + Base64 Audio"| K
     end
 
-    classDef client fill:#08090b,stroke:#10b981,stroke-width:2px,color:#fff;
-    classDef backend fill:#0d1117,stroke:#3b82f6,stroke-width:2px,color:#fff;
-    class Client client;
-    class Backend backend;
+    style Client fill:#08090b,stroke:#10b981,stroke-width:2px,color:#fff
+    style Backend fill:#0d1117,stroke:#3b82f6,stroke-width:2px,color:#fff
 ```
 
 ### Visual Architecture Flow (Plain-Text Representation)
