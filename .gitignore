@@ -1,0 +1,35 @@
+# Environment Variables & Secrets
+.env
+*.env
+!.env.example
+
+# Python Cache & Virtual Environments
+__pycache__/
+*.py[cod]
+*.class
+.venv/
+venv/
+env/
+ENV/
+
+# Audio Outputs & Benchmarks
+*.wav
+*.mp3
+*.webm
+preflight_output.wav
+benchmark_case_*.wav
+
+# Demo & Media Files
+Demo.mp4
+*.mp4
+*.mov
+*.avi
+*.mkv
+demo/
+demo.*
+
+# System & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
