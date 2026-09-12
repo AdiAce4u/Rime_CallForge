@@ -77,14 +77,14 @@ html.dark,
 
 html.light,
 [data-theme="light"] {
-  /* Sober, executive stone/slate light theme (non-glaring, professional) */
-  --bg-page: #e8ecf1;
-  --bg-sidebar: #dbe1ea;
-  --bg-main: #e8ecf1;
-  --bg-card: #f5f7fa;
-  --bg-card-subtle: #edf1f6;
-  --bg-card-inner: #dce3ed;
-  --bg-card-gradient-end: #e8edf3;
+  /* Soft, sober light theme with a delicate hint of teal in the center */
+  --bg-page: #edf3f4;
+  --bg-sidebar: #d9e4e6;
+  --bg-main: #edf3f4;
+  --bg-card: #f6fafb;
+  --bg-card-subtle: #e8f1f2;
+  --bg-card-inner: #dce7e9;
+  --bg-card-gradient-end: #e5eff0;
   --bg-input: #ffffff;
 
   --border-card: rgba(15, 23, 42, 0.12);
@@ -135,11 +135,11 @@ html.light,
 
 /* Light Mode Subtle Center Tint (Airy hint of teal/cyan in the center) */
 html.light .main-content {
-  background: radial-gradient(ellipse 70% 60% at 50% 32%, rgba(20, 184, 166, 0.09) 0%, rgba(20, 184, 166, 0.02) 42%, #e8ecf1 72%);
+  background: radial-gradient(ellipse 70% 60% at 50% 35%, rgba(20, 184, 166, 0.13) 0%, rgba(20, 184, 166, 0.04) 42%, #edf3f4 75%);
 }
 
 html.light .concierge-card {
-  background: radial-gradient(ellipse 75% 65% at 50% 28%, rgba(20, 184, 166, 0.065) 0%, rgba(20, 184, 166, 0.015) 45%, var(--bg-card) 75%);
+  background: radial-gradient(ellipse 75% 65% at 50% 30%, rgba(20, 184, 166, 0.12) 0%, rgba(20, 184, 166, 0.03) 48%, var(--bg-card) 78%) !important;
 }
 
 /* ==========================================================================

@@ -57,6 +57,7 @@ html.dark,
   --nav-hover-bg: rgba(255, 255, 255, 0.04);
   --nav-active-bg: rgba(16, 185, 129, 0.1);
 
+  --bg-card-gradient-end: #090e17;
   --card-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --mic-bg: #ffffff;
   --mic-svg: #000000;
@@ -76,58 +77,69 @@ html.dark,
 
 html.light,
 [data-theme="light"] {
-  --bg-page: #f2f4f8;
-  --bg-sidebar: #ffffff;
-  --bg-main: #f2f4f8;
-  --bg-card: #ffffff;
-  --bg-card-subtle: #f8fafc;
-  --bg-card-inner: #f1f5f9;
+  /* Soft, sober light theme with a delicate hint of teal in the center */
+  --bg-page: #edf3f4;
+  --bg-sidebar: #d9e4e6;
+  --bg-main: #edf3f4;
+  --bg-card: #f6fafb;
+  --bg-card-subtle: #e8f1f2;
+  --bg-card-inner: #dce7e9;
+  --bg-card-gradient-end: #e5eff0;
   --bg-input: #ffffff;
 
-  --border-card: #e2e8f0;
-  --border-subtle: #e2e8f0;
-  --border-input: #cbd5e1;
-  --border-focus: rgba(16, 185, 129, 0.5);
+  --border-card: rgba(15, 23, 42, 0.12);
+  --border-subtle: rgba(15, 23, 42, 0.09);
+  --border-input: rgba(15, 23, 42, 0.18);
+  --border-focus: rgba(16, 185, 129, 0.6);
 
-  --text-primary: #0f172a;
+  --text-primary: #1e293b;
   --text-secondary: #475569;
   --text-muted: #64748b;
 
   --accent-green: #059669;
-  --accent-green-bg: #ecfdf5;
-  --accent-green-border: #a7f3d0;
+  --accent-green-bg: rgba(5, 150, 105, 0.1);
+  --accent-green-border: rgba(5, 150, 105, 0.3);
 
   --accent-cyan: #0284c7;
-  --accent-cyan-bg: #f0f9ff;
-  --accent-cyan-border: #bae6fd;
+  --accent-cyan-bg: rgba(2, 132, 199, 0.1);
+  --accent-cyan-border: rgba(2, 132, 199, 0.3);
 
   --accent-red: #dc2626;
-  --accent-red-bg: #fef2f2;
-  --accent-red-border: #fecaca;
+  --accent-red-bg: rgba(220, 38, 38, 0.1);
+  --accent-red-border: rgba(220, 38, 38, 0.3);
 
-  --bubble-user: #e0e7ff;
-  --bubble-user-border: #c7d2fe;
-  --bubble-user-text: #0f172a;
+  --bubble-user: #1e293b;
+  --bubble-user-border: #0f172a;
+  --bubble-user-text: #ffffff;
 
   --bubble-agent: #ffffff;
-  --bubble-agent-border: #e2e8f0;
+  --bubble-agent-border: rgba(15, 23, 42, 0.1);
   --bubble-agent-text: #1e293b;
 
-  --bg-pill: #f8fafc;
-  --border-pill: #e2e8f0;
+  --bg-pill: #ffffff;
+  --border-pill: rgba(15, 23, 42, 0.12);
   --text-pill: #334155;
 
   --bg-btn: #ffffff;
-  --border-btn: #cbd5e1;
-  --bg-btn-hover: #f8fafc;
+  --border-btn: rgba(15, 23, 42, 0.14);
+  --bg-btn-hover: #dfe5ee;
 
-  --nav-hover-bg: #f8fafc;
-  --nav-active-bg: #ecfdf5;
+  --nav-hover-bg: rgba(15, 23, 42, 0.06);
+  --nav-active-bg: rgba(5, 150, 105, 0.12);
 
-  --card-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.08);
-  --mic-bg: #0f172a;
+  --card-shadow: 0 12px 32px -6px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --mic-bg: #1e293b;
   --mic-svg: #ffffff;
-  --mic-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+  --mic-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.28);
+}
+
+/* Light Mode Subtle Center Tint (Airy hint of teal/cyan in the center) */
+html.light .main-content {
+  background: radial-gradient(ellipse 70% 60% at 50% 35%, rgba(20, 184, 166, 0.13) 0%, rgba(20, 184, 166, 0.04) 42%, #edf3f4 75%);
+}
+
+html.light .concierge-card {
+  background: radial-gradient(ellipse 75% 65% at 50% 30%, rgba(20, 184, 166, 0.12) 0%, rgba(20, 184, 166, 0.03) 48%, var(--bg-card) 78%) !important;
 }
 
 /* ==========================================================================
@@ -481,7 +493,7 @@ body {
 .concierge-card {
   max-width: 820px;
   margin: 0 auto;
-  background: linear-gradient(180deg, var(--bg-card) 0%, #090e17 100%);
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-card-gradient-end) 100%);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-xl);
   padding: 34px 38px;
@@ -547,105 +559,160 @@ body {
   transition: all 0.15s ease;
 }
 .hint-chip:hover {
-  background: #151e2e;
+  background: var(--bg-btn-hover);
   color: var(--text-primary);
   border-color: var(--accent-green-border);
   transform: translateY(-1px);
 }
 
-/* The Big Circular Microphone Button */
+/* ==========================================================================
+   Aarvi-Inspired Voice Intelligence Orb & Waveform Visualizer
+   ========================================================================== */
 .big-mic-wrapper {
   position: relative;
-  width: 104px;
-  height: 104px;
+  width: 210px;
+  height: 210px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin: 10px auto 14px auto;
 }
 
 .visualizer-ring {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 226px;
+  height: 226px;
   border-radius: 50%;
-  border: 2px solid transparent;
   pointer-events: none;
-  transition: all 0.3s ease;
-}
-.visualizer-ring.active {
-  border-color: var(--accent-green);
-  box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
-  animation: mic-pulse 2s infinite;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.16) 0%, rgba(20, 184, 166, 0.04) 55%, transparent 72%);
+  opacity: 0.6;
+  transition: all 0.4s ease;
 }
 
-@keyframes mic-pulse {
-  0% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.18); opacity: 0.4; }
-  100% { transform: scale(1); opacity: 0.9; }
+.visualizer-ring.active {
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.3) 0%, rgba(224, 91, 104, 0.18) 46%, transparent 72%);
+  opacity: 1;
+  animation: orb-ambient-glow 3s infinite ease-in-out alternate;
+}
+
+@keyframes orb-ambient-glow {
+  0% { transform: scale(0.96); opacity: 0.7; }
+  100% { transform: scale(1.08); opacity: 1; }
 }
 
 .big-mic-circle {
-  width: 86px;
-  height: 86px;
+  width: 190px;
+  height: 190px;
   border-radius: 50%;
-  background-color: var(--mic-bg);
-  color: var(--mic-svg);
   border: none;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 12px;
   cursor: pointer;
-  box-shadow: var(--mic-shadow);
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: linear-gradient(145deg, #1fc2ba 0%, #15a19b 48%, #0d8480 100%);
+  box-shadow: 0 16px 42px -6px rgba(13, 148, 136, 0.42), 0 4px 18px rgba(13, 148, 136, 0.2);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   z-index: 2;
+  outline: none;
+  padding: 0;
 }
 
 .big-mic-circle:hover {
-  transform: scale(1.05);
+  transform: scale(1.03);
+  box-shadow: 0 20px 48px -4px rgba(13, 148, 136, 0.48), 0 6px 22px rgba(13, 148, 136, 0.24);
 }
 
 .big-mic-circle.recording {
-  background-color: var(--accent-green);
-  color: #03140d;
-  box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
-  animation: mic-listening-beat 1.6s ease-in-out infinite alternate;
+  background: linear-gradient(135deg, #df5b6b 0%, #d4657c 28%, #20b8b2 68%, #0d9488 100%);
+  box-shadow: 0 18px 50px -6px rgba(223, 91, 107, 0.38), 0 12px 42px -4px rgba(20, 184, 166, 0.45);
+  animation: orb-listening-pulse 2.2s ease-in-out infinite alternate;
 }
 
 .big-mic-circle.speaking {
-  background-color: var(--accent-cyan);
-  color: #03140d;
-  box-shadow: 0 0 35px rgba(6, 182, 212, 0.7);
-  animation: mic-speaking-beat 1s ease-in-out infinite alternate;
+  background: linear-gradient(135deg, #06b6d4 0%, #0284c7 45%, #14b8a6 100%);
+  box-shadow: 0 18px 52px rgba(6, 182, 212, 0.48);
+  animation: orb-speaking-pulse 1.4s ease-in-out infinite alternate;
 }
 
-@keyframes mic-listening-beat {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.07); }
+@keyframes orb-listening-pulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  100% { transform: scale(1.04); filter: brightness(1.05); }
 }
 
-@keyframes mic-speaking-beat {
+@keyframes orb-speaking-pulse {
   0% { transform: scale(1); }
-  100% { transform: scale(1.08); }
+  100% { transform: scale(1.05); }
+}
+
+/* Integrated Waveform Dots & Bars */
+.orb-waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 38px;
+  pointer-events: none;
+}
+
+.wave-bar {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background-color: rgba(255, 255, 255, 0.88);
+  border-radius: 50%;
+  transition: height 0.12s ease, border-radius 0.12s ease, opacity 0.2s;
+}
+
+.big-mic-circle.recording .wave-bar,
+.big-mic-circle.speaking .wave-bar {
+  background-color: #ffffff;
+}
+
+/* Frosted Glass Mic Icon Badge */
+.orb-mic-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s;
+  pointer-events: none;
+}
+
+.big-mic-circle:hover .orb-mic-badge {
+  transform: scale(1.08);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .mic-status-text {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-secondary);
+  font-family: var(--font-display);
+  font-size: 1.26rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
   text-align: center;
-  margin-bottom: 12px;
+  margin: 14px 0 20px 0;
+  transition: color 0.2s ease;
 }
 
 /* Speech Level Bar */
 .speech-level-container {
   width: 240px;
   height: 4px;
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: var(--border-subtle);
   border-radius: 2px;
   overflow: hidden;
-  margin-bottom: 14px;
+  margin-bottom: 22px;
   opacity: 0;
   transition: opacity 0.2s;
 }
@@ -675,7 +742,7 @@ body {
   gap: 6px;
   background: var(--accent-red-bg);
   border: 1px solid var(--accent-red-border);
-  color: #fca5a5;
+  color: var(--accent-red);
   font-size: 0.76rem;
   font-weight: 700;
   padding: 6px 14px;
@@ -865,7 +932,7 @@ body {
 .studio-card {
   max-width: 880px;
   margin: 0 auto;
-  background: linear-gradient(180deg, var(--bg-card) 0%, #090e17 100%);
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-card-gradient-end) 100%);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-xl);
   padding: 32px 36px;
@@ -1225,7 +1292,7 @@ body {
 }
 
 .logs-table tr:hover td {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: var(--nav-hover-bg);
 }
 
 .empty-table-msg {

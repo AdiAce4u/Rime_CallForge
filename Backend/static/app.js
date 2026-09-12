@@ -268,7 +268,7 @@ function initSpeechRecognition() {
 
       const statusText = document.getElementById("mic-status-text");
       if (statusText && state.micActive) {
-        statusText.textContent = "Listening to speech...";
+        statusText.textContent = "I'm listening...";
       }
 
       // 2. High-speed Silence Timer: Senses end-of-speech within 260ms
@@ -349,6 +349,17 @@ function runAudioVisualizerLoop() {
   const levelBar = document.getElementById("speech-level-bar");
   if (levelBar) {
     levelBar.style.width = `${pct}%`;
+  }
+
+  // Live waveform animation on the Aarvi orb
+  const waveBars = document.querySelectorAll(".wave-bar");
+  if (waveBars.length > 0 && state.micActive) {
+    waveBars.forEach((bar, idx) => {
+      const factor = Math.sin((idx / (waveBars.length - 1)) * Math.PI);
+      const h = Math.max(5, Math.round(5 + (pct * 0.35 * factor)));
+      bar.style.height = `${h}px`;
+      bar.style.borderRadius = h > 6 ? "9999px" : "50%";
+    });
   }
 
   const now = Date.now();
@@ -504,7 +515,7 @@ async function startContinuousMic() {
   micBtn.classList.add("recording");
   ring.classList.add("active");
   levelContainer.classList.add("visible");
-  statusText.textContent = "Listening continuously... (Speak anytime)";
+  statusText.textContent = "I'm listening...";
 
   // 1. Start Web Speech Recognition
   if (state.recognition) {
@@ -559,7 +570,13 @@ function stopContinuousMic() {
   micBtn.classList.remove("recording", "speaking");
   ring.classList.remove("active");
   levelContainer.classList.remove("visible");
-  statusText.textContent = "Tap to start speaking";
+  statusText.textContent = "How can I help you today?";
+
+  const waveBars = document.querySelectorAll(".wave-bar");
+  waveBars.forEach(bar => {
+    bar.style.height = "5px";
+    bar.style.borderRadius = "50%";
+  });
 }
 
 // Play Agent Audio immediately with interruption support
@@ -579,7 +596,7 @@ function playAgentAudio(base64Audio) {
   if (micBtn) micBtn.classList.add("speaking");
 
   const statusText = document.getElementById("mic-status-text");
-  if (statusText) statusText.textContent = "Agent speaking... (Interrupt at any time)";
+  if (statusText) statusText.textContent = "Speaking...";
 
   audio.onended = () => {
     state.lastAgentAudioEndTime = Date.now();
@@ -587,9 +604,9 @@ function playAgentAudio(base64Audio) {
     state.activeAudioElement = null;
     if (micBtn) micBtn.classList.remove("speaking");
     if (state.micActive && statusText) {
-      statusText.textContent = "Listening continuously... (Speak anytime)";
+      statusText.textContent = "I'm listening...";
     } else if (statusText) {
-      statusText.textContent = "Tap to start speaking";
+      statusText.textContent = "How can I help you today?";
     }
   };
 
