@@ -667,6 +667,35 @@ async function handleTextSubmit(e) {
   return false;
 }
 
+// Quick Service Hints Execution (e.g. Flight to Mumbai, Book a Cab, etc.)
+async function executeQuickHint(hintText) {
+  if (!hintText) return;
+
+  // Switch to Live Concierge tab if on another tab
+  if (state.activeTab !== "live-concierge") {
+    switchTab("live-concierge");
+  }
+
+  // Visual update in chat input field
+  const inputEl = document.getElementById("chat-text-input");
+  if (inputEl) {
+    inputEl.value = hintText;
+  }
+
+  // Stop any currently playing speech immediately
+  if (state.agentAudioPlaying) {
+    interruptAgentSpeech();
+  }
+
+  // Reset deduplication locks so hint fires immediately every time
+  state.lastCommittedText = "";
+  state.lastCommittedTime = 0;
+  state.isProcessingTurn = false;
+
+  // Trigger turn through full-duplex voice concierge pipeline
+  await commitVoiceTurn(hintText);
+}
+
 // Append chat turn matching the exact screenshot layout
 function appendChatTurn(role, text, latency = null, speaker = null) {
   const stream = document.getElementById("chat-stream");
@@ -981,7 +1010,7 @@ const authState = {
   isAuthenticating: false,
   error: null,
   tokenClient: null,
-  googleClientId: null
+  googleClientId: "1072307292104-qus3oc2qtdtpg170emovenopnkei6ccb.apps.googleusercontent.com"
 };
 
 async function initAuth() {
@@ -1086,6 +1115,18 @@ function initGoogleIdentity() {
               renderAuthState();
             }
           }
+        },
+        error_callback: (error) => {
+          console.warn("Google Identity error:", error);
+          authState.isAuthenticating = false;
+          if (error && error.type === "popup_failed_to_open") {
+            authState.error = "Popup blocked by browser. Please allow popups or use fallback.";
+          } else if (error && error.type === "popup_closed") {
+            authState.error = "Sign-in popup was closed.";
+          } else {
+            authState.error = `Google Sign-in: ${error?.message || error?.type || "Connection failed"}`;
+          }
+          renderAuthState();
         }
       });
     } catch (e) {

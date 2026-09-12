@@ -667,6 +667,35 @@ async function handleTextSubmit(e) {
   return false;
 }
 
+// Quick Service Hints Execution (e.g. Flight to Mumbai, Book a Cab, etc.)
+async function executeQuickHint(hintText) {
+  if (!hintText) return;
+
+  // Switch to Live Concierge tab if on another tab
+  if (state.activeTab !== "live-concierge") {
+    switchTab("live-concierge");
+  }
+
+  // Visual update in chat input field
+  const inputEl = document.getElementById("chat-text-input");
+  if (inputEl) {
+    inputEl.value = hintText;
+  }
+
+  // Stop any currently playing speech immediately
+  if (state.agentAudioPlaying) {
+    interruptAgentSpeech();
+  }
+
+  // Reset deduplication locks so hint fires immediately every time
+  state.lastCommittedText = "";
+  state.lastCommittedTime = 0;
+  state.isProcessingTurn = false;
+
+  // Trigger turn through full-duplex voice concierge pipeline
+  await commitVoiceTurn(hintText);
+}
+
 // Append chat turn matching the exact screenshot layout
 function appendChatTurn(role, text, latency = null, speaker = null) {
   const stream = document.getElementById("chat-stream");
@@ -984,7 +1013,7 @@ const authState = {
   googleClientId: "1072307292104-qus3oc2qtdtpg170emovenopnkei6ccb.apps.googleusercontent.com"
 };
 
-function initAuth() {
+async function initAuth() {
   // 1. Check local storage for existing session
   try {
     const saved = localStorage.getItem("voice_ai_user");
@@ -1025,11 +1054,27 @@ function initAuth() {
   // 3. Render state immediately
   renderAuthState();
 
-  // 4. Initialize Google Identity Services
-  initGoogleIdentity();
+  // 4. Fetch Google Client ID from backend .env
+  await fetchAuthConfig();
+}
+
+async function fetchAuthConfig() {
+  try {
+    const res = await fetch("/api/auth/config");
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.google_client_id) {
+        authState.googleClientId = data.google_client_id;
+        initGoogleIdentity();
+      }
+    }
+  } catch (err) {
+    console.warn("Failed loading Google Client ID from .env:", err);
+  }
 }
 
 function initGoogleIdentity() {
+  if (!authState.googleClientId) return;
   if (window.google && window.google.accounts && window.google.accounts.oauth2) {
     try {
       authState.tokenClient = window.google.accounts.oauth2.initTokenClient({
@@ -1070,6 +1115,18 @@ function initGoogleIdentity() {
               renderAuthState();
             }
           }
+        },
+        error_callback: (error) => {
+          console.warn("Google Identity error:", error);
+          authState.isAuthenticating = false;
+          if (error && error.type === "popup_failed_to_open") {
+            authState.error = "Popup blocked by browser. Please allow popups or use fallback.";
+          } else if (error && error.type === "popup_closed") {
+            authState.error = "Sign-in popup was closed.";
+          } else {
+            authState.error = `Google Sign-in: ${error?.message || error?.type || "Connection failed"}`;
+          }
+          renderAuthState();
         }
       });
     } catch (e) {

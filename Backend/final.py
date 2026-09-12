@@ -395,7 +395,10 @@ class SynthesizeRequest(BaseModel):
 
 @app.on_event("startup")
 async def on_startup():
-    prewarm_connection_pools()
+    if not os.getenv("VERCEL") and not os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        prewarm_connection_pools()
+    else:
+        logger.info("Vercel Serverless environment: bypassed persistent TCP prewarming.")
 
 @app.get("/api/status")
 async def get_status():
