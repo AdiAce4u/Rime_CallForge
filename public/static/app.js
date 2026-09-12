@@ -27,8 +27,6 @@ const state = {
   audioContext: null,
   analyser: null,
   vadSilenceTimeout: null,
-  liveRecorder: null,
-  liveAudioChunks: [],
   transcriberRecording: false,
   transcriberRecorder: null,
   transcriberChunks: [],
@@ -330,14 +328,7 @@ function triggerSilenceCommit() {
   state.userSpokenRecently = false;
   state.currentLiveText = "";
   clearTimeout(state.vadSilenceTimeout);
-
-  let audioBlob = null;
-  if (state.liveAudioChunks && state.liveAudioChunks.length > 0) {
-    audioBlob = new Blob(state.liveAudioChunks, { type: "audio/webm" });
-    state.liveAudioChunks = [];
-  }
-
-  commitVoiceTurn(textToCommit, audioBlob);
+  commitVoiceTurn(textToCommit);
 }
 
 // ----------------------------------------------------------------------------
@@ -397,17 +388,17 @@ function runAudioVisualizerLoop() {
 }
 
 // Commit turn to backend and play response immediately
-async function commitVoiceTurn(spokenText, audioBlob = null) {
-  if (!spokenText && !audioBlob) return;
-  const rawText = (spokenText || "").trim();
+async function commitVoiceTurn(spokenText) {
+  if (!spokenText) return;
+  const rawText = spokenText.trim();
   const normalized = rawText.toLowerCase().replace(/[^\w\s\u0900-\u097F]/g, "").replace(/\s+/g, " ");
 
-  if (!normalized && !audioBlob) return;
+  if (!normalized) return;
 
   const now = Date.now();
 
   // Strict deduplication: prevent identical phrase commits within 4.5s
-  if (normalized && normalized === state.lastCommittedText && (now - state.lastCommittedTime) < 4500) {
+  if (normalized === state.lastCommittedText && (now - state.lastCommittedTime) < 4500) {
     console.log("Suppressed duplicate utterance:", rawText);
     return;
   }
@@ -429,46 +420,25 @@ async function commitVoiceTurn(spokenText, audioBlob = null) {
   if (inputEl) inputEl.value = "";
 
   // Append user message immediately - EXACTLY ONCE
-  const userTurnEl = appendChatTurn("user", rawText || "Processing speech...");
+  appendChatTurn("user", rawText);
 
   const statusText = document.getElementById("mic-status-text");
-  if (statusText) statusText.textContent = audioBlob ? "Processing with Deepgram Nova-3..." : "Synthesizing response...";
+  if (statusText) statusText.textContent = "Synthesizing response...";
 
   try {
-    let response;
-    if (audioBlob && audioBlob.size > 800) {
-      // Real Deepgram Nova-3 STT Pipeline
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "turn.webm");
-      formData.append("voice", state.selectedVoice);
-      formData.append("session_id", "default_session");
-
-      response = await fetch("/api/concierge/audio-turn", {
-        method: "POST",
-        body: formData
-      });
-    } else {
-      // Text fallback (typing or quick hint chips)
-      response = await fetch("/api/concierge/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: rawText,
-          voice: state.selectedVoice,
-          language: state.selectedLanguage,
-          session_id: "default_session"
-        })
-      });
-    }
+    const response = await fetch("/api/concierge/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: rawText,
+        voice: state.selectedVoice,
+        language: state.selectedLanguage,
+        session_id: "default_session"
+      })
+    });
 
     const data = await response.json();
     if (response.ok && data.agent_reply) {
-      // If Deepgram returned a refined transcript, update the user bubble
-      if (data.user_transcript && userTurnEl) {
-        const bubble = userTurnEl.querySelector(".turn-bubble");
-        if (bubble) bubble.textContent = data.user_transcript;
-      }
-
       // Dynamically switch voice/model and top bar language pill
       if (data.detected_language || data.speaker) {
         applyDetectedLanguage(data.detected_language, data.speaker);
@@ -485,9 +455,6 @@ async function commitVoiceTurn(spokenText, audioBlob = null) {
         }
       }
     } else {
-      if (data.no_speech && userTurnEl && !rawText) {
-        userTurnEl.remove();
-      }
       if (state.micActive && statusText) {
         statusText.textContent = "Listening continuously... (Speak anytime)";
       }
@@ -571,27 +538,9 @@ async function startContinuousMic() {
     state.analyser.fftSize = 256;
     source.connect(state.analyser);
 
-    // 3. Start Live MediaRecorder for Deepgram Nova-3 pipeline
-    const options = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-      ? { mimeType: "audio/webm;codecs=opus" }
-      : { mimeType: "audio/webm" };
-
-    state.liveAudioChunks = [];
-    state.liveRecorder = new MediaRecorder(stream, options);
-    state.liveRecorder.ondataavailable = (e) => {
-      if (e.data && e.data.size > 0) {
-        state.liveAudioChunks.push(e.data);
-        // While user is not actively speaking, keep rolling pre-speech buffer (~800ms)
-        if (!state.userSpokenRecently && state.liveAudioChunks.length > 8) {
-          state.liveAudioChunks.shift();
-        }
-      }
-    };
-    state.liveRecorder.start(100);
-
     runAudioVisualizerLoop();
   } catch (err) {
-    console.warn("Audio capture error:", err);
+    console.warn("Web Audio Analyser error:", err);
   }
 }
 
@@ -599,12 +548,6 @@ function stopContinuousMic() {
   state.micActive = false;
   state.userSpokenRecently = false;
   clearTimeout(state.vadSilenceTimeout);
-
-  if (state.liveRecorder && state.liveRecorder.state !== "inactive") {
-    try { state.liveRecorder.stop(); } catch (e) {}
-  }
-  state.liveRecorder = null;
-  state.liveAudioChunks = [];
 
   if (state.recognition) {
     try { state.recognition.stop(); } catch (e) {}
@@ -790,7 +733,6 @@ function appendChatTurn(role, text, latency = null, speaker = null) {
 
   state.chatTurns.push({ role, text, latency, timestamp: new Date().toISOString() });
   updateTurnCounter();
-  return turnDiv;
 }
 
 function updateTurnCounter() {
