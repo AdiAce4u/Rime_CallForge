@@ -11,11 +11,13 @@ from __future__ import annotations
 
 import base64
 import functools
+import json
 import logging
 import os
 import re
 import sys
 import time
+import urllib.parse
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -45,7 +47,7 @@ logger = logging.getLogger("final-voice-agent")
 # FastAPI and dependencies
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -672,6 +674,78 @@ async def get_logs(filter_type: Optional[str] = None, limit: int = 50):
 async def clear_logs():
     service_logs.clear()
     return {"success": True, "message": "Logs cleared"}
+
+# -----------------------------------------------------------------------------
+# Google OAuth 2.0 Endpoints (Fallback Flow)
+# -----------------------------------------------------------------------------
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+
+@app.get("/api/auth/config")
+async def get_auth_config():
+    return {
+        "google_client_id": GOOGLE_CLIENT_ID
+    }
+
+@app.get("/api/auth/google/login")
+async def google_login(request: Request):
+    base_url = str(request.base_url).rstrip("/")
+    redirect_uri = f"{base_url}/api/auth/google/callback"
+    params = {
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": redirect_uri,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline",
+        "prompt": "select_account"
+    }
+    auth_url = "https://accounts.google.com/o/oauth2/v2/auth?" + urllib.parse.urlencode(params)
+    return RedirectResponse(auth_url)
+
+@app.get("/api/auth/google/callback")
+async def google_callback(request: Request, code: str = None, error: str = None):
+    if error:
+        return RedirectResponse(f"/?auth_error={urllib.parse.quote(error)}")
+    if not code:
+        return RedirectResponse("/?auth_error=No+authorization+code+received")
+
+    if GOOGLE_CLIENT_SECRET:
+        try:
+            base_url = str(request.base_url).rstrip("/")
+            token_res = requests.post(
+                "https://oauth2.googleapis.com/token",
+                data={
+                    "code": code,
+                    "client_id": GOOGLE_CLIENT_ID,
+                    "client_secret": GOOGLE_CLIENT_SECRET,
+                    "redirect_uri": f"{base_url}/api/auth/google/callback",
+                    "grant_type": "authorization_code"
+                },
+                timeout=10
+            )
+            token_data = token_res.json()
+            access_token = token_data.get("access_token")
+            if access_token:
+                user_res = requests.get(
+                    "https://www.googleapis.com/oauth2/v3/userinfo",
+                    headers={"Authorization": f"Bearer {access_token}"},
+                    timeout=10
+                )
+                user_data = user_res.json()
+                profile = {
+                    "name": user_data.get("name") or (user_data.get("email", "").split("@")[0] if user_data.get("email") else "User"),
+                    "email": user_data.get("email"),
+                    "picture": user_data.get("picture"),
+                    "id": user_data.get("sub"),
+                    "provider": "google"
+                }
+                b64_data = base64.urlsafe_b64encode(json.dumps(profile).encode()).decode()
+                return RedirectResponse(f"/?auth_data={b64_data}")
+        except Exception as e:
+            logger.error(f"Google OAuth callback exception: {e}")
+            return RedirectResponse(f"/?auth_error={urllib.parse.quote(str(e))}")
+
+    return RedirectResponse("/?auth_error=Server+OAuth+client+secret+not+configured.+Please+use+GIS+client+popup.")
 
 @app.get("/")
 async def serve_dashboard():

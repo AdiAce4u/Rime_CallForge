@@ -38,6 +38,7 @@ const state = {
 
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
+  initAuth();
   loadSystemStatus();
   setupVoiceSelector();
   fetchServiceLogs();
@@ -970,3 +971,223 @@ function escapeHtml(str) {
   if (!str) return "";
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
+
+// ============================================================================
+// Google Authentication Module (Left Bottom Corner)
+// ============================================================================
+
+const authState = {
+  user: null,
+  isAuthenticating: false,
+  error: null,
+  tokenClient: null,
+  googleClientId: "1072307292104-qus3oc2qtdtpg170emovenopnkei6ccb.apps.googleusercontent.com"
+};
+
+function initAuth() {
+  // 1. Check local storage for existing session
+  try {
+    const saved = localStorage.getItem("voice_ai_user");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.email && parsed.email !== "alex.dev@gmail.com") {
+        authState.user = parsed;
+      }
+    }
+  } catch (e) {
+    console.warn("Failed reading saved user session:", e);
+  }
+
+  // 2. Check URL redirect params from OAuth callback
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const authData = params.get("auth_data");
+    if (authData) {
+      const jsonStr = decodeURIComponent(escape(atob(authData.replace(/-/g, "+").replace(/_/g, "/"))));
+      const profile = JSON.parse(jsonStr);
+      if (profile && profile.email) {
+        authState.user = profile;
+        localStorage.setItem("voice_ai_user", JSON.stringify(profile));
+      }
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    const errorMsg = params.get("auth_error");
+    if (errorMsg) {
+      authState.error = decodeURIComponent(errorMsg);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  } catch (e) {
+    console.error("Failed processing OAuth redirect query:", e);
+    authState.error = "Could not process login redirect.";
+  }
+
+  // 3. Render state immediately
+  renderAuthState();
+
+  // 4. Initialize Google Identity Services
+  initGoogleIdentity();
+}
+
+function initGoogleIdentity() {
+  if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+    try {
+      authState.tokenClient = window.google.accounts.oauth2.initTokenClient({
+        client_id: authState.googleClientId,
+        scope: "openid email profile",
+        callback: async (tokenResponse) => {
+          if (tokenResponse.error) {
+            console.warn("Google popup error:", tokenResponse.error);
+            authState.isAuthenticating = false;
+            authState.error = tokenResponse.error === "access_denied"
+              ? "Google Sign-In was cancelled."
+              : "Google Sign-In failed: " + tokenResponse.error;
+            renderAuthState();
+            return;
+          }
+
+          if (tokenResponse.access_token) {
+            try {
+              const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+                headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+              });
+              const data = await res.json();
+              const profile = {
+                name: data.name || (data.email ? data.email.split("@")[0] : "User"),
+                email: data.email,
+                picture: data.picture,
+                id: data.sub,
+                provider: "google"
+              };
+              authState.user = profile;
+              localStorage.setItem("voice_ai_user", JSON.stringify(profile));
+              authState.error = null;
+            } catch (err) {
+              console.error("Failed fetching Google profile:", err);
+              authState.error = "Could not fetch Google profile details.";
+            } finally {
+              authState.isAuthenticating = false;
+              renderAuthState();
+            }
+          }
+        }
+      });
+    } catch (e) {
+      console.warn("Google Identity Services client error:", e);
+    }
+  } else {
+    // Retry shortly if the external script is still loading asynchronously
+    setTimeout(initGoogleIdentity, 300);
+  }
+}
+
+function triggerGoogleSignIn() {
+  authState.error = null;
+  authState.isAuthenticating = true;
+  renderAuthState();
+
+  if (authState.tokenClient) {
+    try {
+      authState.tokenClient.requestAccessToken({ prompt: "select_account" });
+      setTimeout(() => {
+        if (authState.isAuthenticating) {
+          authState.isAuthenticating = false;
+          renderAuthState();
+        }
+      }, 7000);
+      return;
+    } catch (err) {
+      console.warn("Token client request failed, falling back to server redirect:", err);
+    }
+  }
+
+  // Fallback to server route if token client unavailable
+  window.location.href = "/api/auth/google/login";
+}
+
+function signInAsGuest() {
+  const guestUser = {
+    name: "Guest User",
+    email: "guest@rime.internal",
+    picture: null,
+    provider: "guest"
+  };
+  authState.user = guestUser;
+  authState.error = null;
+  authState.isAuthenticating = false;
+  localStorage.setItem("voice_ai_user", JSON.stringify(guestUser));
+  renderAuthState();
+}
+
+function signOutUser() {
+  authState.user = null;
+  authState.error = null;
+  authState.isAuthenticating = false;
+  localStorage.removeItem("voice_ai_user");
+  renderAuthState();
+}
+
+function dismissAuthError() {
+  authState.error = null;
+  const banner = document.getElementById("auth-error-banner");
+  if (banner) banner.style.display = "none";
+}
+
+function renderAuthState() {
+  const loggedOutBox = document.getElementById("auth-logged-out");
+  const loggedInBox = document.getElementById("auth-logged-in");
+  const errorBanner = document.getElementById("auth-error-banner");
+  const errorText = document.getElementById("auth-error-text");
+  const googleBtnText = document.getElementById("google-btn-text");
+  const googleBtn = document.getElementById("btn-google-signin");
+
+  // Authentication error banner
+  if (errorBanner && errorText) {
+    if (authState.error) {
+      errorText.textContent = authState.error;
+      errorBanner.style.display = "flex";
+    } else {
+      errorBanner.style.display = "none";
+    }
+  }
+
+  // Spinner / Connecting state on button
+  if (googleBtn && googleBtnText) {
+    googleBtn.disabled = authState.isAuthenticating;
+    googleBtnText.textContent = authState.isAuthenticating ? "Connecting..." : "Sign in with Google";
+  }
+
+  // Logged-in vs Logged-out view
+  if (authState.user) {
+    if (loggedOutBox) loggedOutBox.style.display = "none";
+    if (loggedInBox) loggedInBox.style.display = "flex";
+
+    const nameEl = document.getElementById("user-display-name");
+    const emailEl = document.getElementById("user-email-label");
+    const avatarImg = document.getElementById("user-avatar-img");
+    const avatarFallback = document.getElementById("user-avatar-fallback");
+
+    const displayName = authState.user.name || (authState.user.email ? authState.user.email.split("@")[0] : "User");
+    const email = authState.user.email || "";
+    const initial = displayName.charAt(0).toUpperCase();
+
+    if (nameEl) nameEl.textContent = displayName;
+    if (emailEl) emailEl.textContent = email;
+
+    if (authState.user.picture && avatarImg) {
+      avatarImg.src = authState.user.picture;
+      avatarImg.style.display = "block";
+      if (avatarFallback) avatarFallback.style.display = "none";
+    } else {
+      if (avatarImg) avatarImg.style.display = "none";
+      if (avatarFallback) {
+        avatarFallback.textContent = initial;
+        avatarFallback.style.display = "flex";
+      }
+    }
+  } else {
+    if (loggedOutBox) loggedOutBox.style.display = "flex";
+    if (loggedInBox) loggedInBox.style.display = "none";
+  }
+}
+
